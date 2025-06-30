@@ -1,3 +1,3 @@
 export const routeConfig = {
-  onboarding: "/onboarding",
+  search: "/search",
 } as const;
