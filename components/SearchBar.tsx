@@ -1,10 +1,14 @@
 import { icons } from "@/constants/icons";
-import React, { useState } from "react";
+import React from "react";
 import { Image, TextInput, View } from "react-native";
 
-const SearchBar = () => {
-  const [searchVal, setSearchVal] = useState("");
-
+const SearchBar = ({
+  searchVal,
+  handleChange,
+}: {
+  searchVal: string;
+  handleChange: (val: string) => void;
+}) => {
   return (
     <View className="flex-row items-center bg-dark-200 rounded-full px-5 py-4">
       <Image
@@ -17,7 +21,7 @@ const SearchBar = () => {
         value={searchVal}
         placeholder="Search"
         placeholderTextColor={"#a8b5db"}
-        onChangeText={setSearchVal}
+        onChangeText={handleChange}
         className="flex-1 ml-2 text-white"
       />
     </View>
