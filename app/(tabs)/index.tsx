@@ -14,15 +14,21 @@ import { icons } from "@/constants/icons";
 import { images } from "@/constants/images";
 import { getMovies } from "@/services/api";
 import { useFetch } from "@/services/useFetch";
+import { useDebounce } from "@/utils";
 
 const Index = () => {
   const [searchVal, setSearchVal] = useState("");
+  const debouncedSearchValue = useDebounce(searchVal, 1000);
 
   const {
     data: trendingMovies = [],
     isLoading: isTrendingLoading,
     error: trendingError,
-  } = useFetch(() => getMovies({ query: "" }), true);
+  } = useFetch(
+    () => getMovies({ query: debouncedSearchValue }),
+    [debouncedSearchValue],
+    true
+  );
 
   return (
     <View className="flex-1 bg-primary">
