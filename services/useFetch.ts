@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-export const useFetch = <T, K>(
+export const useFetch = <T>(
   fetchFunction: () => Promise<T>,
   deps: any[],
   autoFetch = false

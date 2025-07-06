@@ -23,7 +23,7 @@ export interface TrendingMovie {
   poster_url: string;
 }
 
-interface MovieDetails {
+export interface MovieDetails {
   adult: boolean;
   backdrop_path: string | null;
   belongs_to_collection: {
