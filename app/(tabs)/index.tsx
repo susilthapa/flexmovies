@@ -25,7 +25,7 @@ const Index = () => {
     isLoading: isTrendingLoading,
     error: trendingError,
   } = useFetch(
-    () => getMovies({ query: debouncedSearchValue }),
+    () => getMovies({ query: debouncedSearchValue.trim() }),
     [debouncedSearchValue],
     true
   );

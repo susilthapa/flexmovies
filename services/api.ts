@@ -1,4 +1,5 @@
 import { Movie } from "@/interfaces/interfaces";
+import { updateSearchCount } from "./appwrite";
 
 export const TMDB_CONFIG = {
   BASE_URL: "https://api.themoviedb.org/3",
@@ -24,6 +25,9 @@ export const getMovies = async ({
     });
     if (response.ok) {
       const data = await response.json();
+      if (data.results?.length && query?.length) {
+        updateSearchCount({ query, movie: data.results[0] });
+      }
       return data.results ?? [];
     } else {
       return [];
