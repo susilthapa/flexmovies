@@ -1,12 +1,5 @@
 import { useState } from "react";
-import {
-  ActivityIndicator,
-  FlatList,
-  Image,
-  ScrollView,
-  Text,
-  View,
-} from "react-native";
+import { ActivityIndicator, FlatList, Image, Text, View } from "react-native";
 
 import MovieCard from "@/components/MovieCard";
 import SearchBar from "@/components/SearchBar";
@@ -19,7 +12,6 @@ import { useDebounce } from "@/utils";
 const Index = () => {
   const [searchVal, setSearchVal] = useState("");
   const debouncedSearchValue = useDebounce(searchVal, 1000);
-
   const {
     data: trendingMovies = [],
     isLoading: isTrendingLoading,
@@ -38,45 +30,40 @@ const Index = () => {
         resizeMode="cover"
       />
 
-      <ScrollView
-        className="flex-1 px-5"
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ minHeight: "100%", paddingBottom: 10 }}
-      >
-        <Image source={icons.logo} className="w-12 h-10 mt-20 mb-5 mx-auto" />
-        <SearchBar searchVal={searchVal} handleChange={setSearchVal} />
-        {isTrendingLoading && (
-          <ActivityIndicator
-            size="large"
-            className="mt-10 self-center text-blue-400"
-          />
-        )}
-        {trendingError && (
-          <Text className="text-red-500 font-semibold text-sm">
-            Error while loading movies
+      <Image source={icons.logo} className="w-12 h-10 mt-20 mb-5 mx-auto" />
+      <SearchBar searchVal={searchVal} handleChange={setSearchVal} />
+      {isTrendingLoading && (
+        <ActivityIndicator
+          size="large"
+          className="mt-10 self-center text-blue-400"
+        />
+      )}
+      {trendingError && (
+        <Text className="text-red-500 font-semibold text-sm">
+          Error while loading movies
+        </Text>
+      )}
+      {!trendingError && !isTrendingLoading && (
+        <View>
+          <Text className="text-white text-lg font-bold my-5">
+            Latest Movies
           </Text>
-        )}
-        {!trendingError && !isTrendingLoading && (
-          <View>
-            <Text className="text-white text-lg font-bold my-5">
-              Latest Movies
-            </Text>
-            <FlatList
-              data={trendingMovies}
-              renderItem={({ item }) => <MovieCard movie={item} />}
-              keyExtractor={(item) => item.id.toString()}
-              numColumns={3}
-              columnWrapperStyle={{
-                justifyContent: "flex-start",
-                gap: 20,
-                paddingRight: 5,
-                marginBottom: 10,
-              }}
-              scrollEnabled={false}
-            />
-          </View>
-        )}
-      </ScrollView>
+          <FlatList
+            data={trendingMovies}
+            renderItem={({ item }) => <MovieCard movie={item} />}
+            keyExtractor={(item) => item.id.toString()}
+            numColumns={3}
+            columnWrapperStyle={{
+              justifyContent: "flex-start",
+              gap: 20,
+              paddingRight: 5,
+              marginBottom: 10,
+            }}
+            contentContainerStyle={{ paddingBottom: 500 }}
+            showsVerticalScrollIndicator={false}
+          />
+        </View>
+      )}
     </View>
   );
 };
