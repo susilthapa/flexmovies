@@ -1,9 +1,11 @@
+import { AuthContext } from "@/context/authContext";
 import { Redirect, Stack } from "expo-router";
-import React from "react";
+import React, { useContext } from "react";
 
-const isLoggedIn = true;
 const ProtectedLayout = () => {
+  const { isLoggedIn } = useContext(AuthContext);
   if (!isLoggedIn) return <Redirect href={"/login"} />;
+
   return (
     <Stack>
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
