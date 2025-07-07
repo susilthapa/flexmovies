@@ -3,7 +3,8 @@ import { Redirect, Stack } from "expo-router";
 import React, { useContext } from "react";
 
 const ProtectedLayout = () => {
-  const { isLoggedIn } = useContext(AuthContext);
+  const { isLoggedIn, isReady } = useContext(AuthContext);
+  if (!isReady) return null;
   if (!isLoggedIn) return <Redirect href={"/login"} />;
 
   return (
