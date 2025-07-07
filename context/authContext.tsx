@@ -1,7 +1,9 @@
 import { AUTH_STORAGE_KEY } from "@/constants/auth";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useRouter } from "expo-router";
+import { SplashScreen, useRouter } from "expo-router";
 import { createContext, ReactNode, useEffect, useState } from "react";
+
+SplashScreen.preventAutoHideAsync();
 
 type AuthState = {
   isLoggedIn: boolean;
@@ -17,8 +19,8 @@ export const AuthContext = createContext<AuthState>({
 });
 
 export const AuthContextProvider = ({ children }: { children: ReactNode }) => {
-  const [isReady, setIsReady] = useState(true);
-  const [isLoggedIn, setIsLoggedIn] = useState(true);
+  const [isReady, setIsReady] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const router = useRouter();
 
   const storeAuthState = async (newState: { isLoggedIn: boolean }) => {
@@ -41,6 +43,8 @@ export const AuthContextProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     (async () => {
       try {
+        await new Promise((resolve) => setTimeout(() => resolve(null), 1000));
+
         const storageValue = await AsyncStorage.getItem(AUTH_STORAGE_KEY);
         if (storageValue) {
           const authState = JSON.parse(storageValue) as { isLoggedIn: boolean };
@@ -52,6 +56,12 @@ export const AuthContextProvider = ({ children }: { children: ReactNode }) => {
       setIsReady(true);
     })();
   }, []);
+
+  useEffect(() => {
+    if (isReady) {
+      SplashScreen.hideAsync();
+    }
+  }, [isReady]);
 
   return (
     <AuthContext.Provider value={{ isLoggedIn, login, logout, isReady }}>
