@@ -24,7 +24,7 @@ const TabIcon = ({
   return focused ? (
     <ImageBackground
       source={bgImage}
-      className="flex flex-row flex-1 w-full min-w-[112px] min-h-[53px] mt-4 justify-center items-center rounded-full overflow-hidden"
+      className="flex flex-row gap-1 flex-1 w-full min-w-[112px] min-h-[53px] mt-4 justify-center items-center rounded-full overflow-hidden"
     >
       <Image source={icon} className="size-5" tintColor={"#151312"} />
       <Text className="text-secondary text-base font-semibold">{title}</Text>
