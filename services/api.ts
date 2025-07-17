@@ -1,4 +1,5 @@
 import { Movie, MovieDetails } from "@/interfaces/interfaces";
+import { updateSearchCount } from "./appwrite";
 
 export const getMovies = async ({
   query,
@@ -14,6 +15,9 @@ export const getMovies = async ({
     );
     if (response.ok) {
       const data = await response.json();
+      if (data.length && query?.length) {
+        updateSearchCount({ query, movie: data[0] });
+      }
       return data ?? [];
     } else {
       return [];

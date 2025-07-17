@@ -1,6 +1,5 @@
 // /app/api/movies/index.ts
 
-import { updateSearchCount } from "@/services/appwrite";
 import { TMDB_CONFIG } from "./tmdbConfig";
 
 export async function GET(req: Request) {
@@ -20,9 +19,6 @@ export async function GET(req: Request) {
     if (!response.ok) return Response.json([], { status: 400 });
 
     const data = await response.json();
-    if (data?.results?.length && query?.length) {
-      updateSearchCount({ query, movie: data[0] });
-    }
     return Response.json(data.results ?? []);
   } catch (e) {
     return Response.json({ error: "Failed to fetch movies" }, { status: 500 });
