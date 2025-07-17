@@ -8,7 +8,7 @@ export const getMovies = async ({
 }): Promise<Movie[]> => {
   try {
     const response = await fetch(
-      `/api/movies${query ? "?query" + encodeURIComponent(query) : ""}`,
+      `/api/movies${query ? "?query=" + encodeURIComponent(query) : ""}`,
       {
         method: "GET",
       }
