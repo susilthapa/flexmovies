@@ -1,10 +1,10 @@
-import { AuthContextProvider } from "@/context/authContext";
+import { AuthProvider } from "@/context/auth";
 import { Stack } from "expo-router";
 import "./globals.css"; // Import global styles
 
 export default function RootLayout() {
   return (
-    <AuthContextProvider>
+    <AuthProvider>
       <Stack>
         <Stack.Screen
           name="(protected)"
@@ -15,6 +15,6 @@ export default function RootLayout() {
           options={{ headerShown: false, animation: "none" }}
         />
       </Stack>
-    </AuthContextProvider>
+    </AuthProvider>
   );
 }

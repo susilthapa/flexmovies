@@ -1,18 +1,19 @@
-import { AuthContext } from "@/context/authContext";
+import { useAuth } from "@/context/auth";
 import { Button } from "@react-navigation/elements";
 import { Redirect } from "expo-router";
-import React, { useContext } from "react";
+import React from "react";
 import { Text, View } from "react-native";
 
 const LoginPage = () => {
-  const { isLoggedIn, login } = useContext(AuthContext);
-  if (isLoggedIn) return <Redirect href="/" />;
+  const { user, signIn } = useAuth();
+
+  if (user) return <Redirect href="/" />;
 
   return (
-    <View className="size-full justify-center items-center">
-      <Text>LoginPage</Text>
-      <Button className="mt-4" onPressIn={login}>
-        Login
+    <View className="size-full justify-center gap-4 items-center">
+      <Text className="font-semibold text-xl">Login</Text>
+      <Button className="mt-4 font-semibold" onPressIn={signIn}>
+        Sign with Google
       </Button>
     </View>
   );

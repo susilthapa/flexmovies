@@ -1,12 +1,12 @@
-import { AuthContext } from "@/context/authContext";
+import { useAuth } from "@/context/auth";
 import { Redirect, Stack } from "expo-router";
-import React, { useContext } from "react";
+import React from "react";
 
 const ProtectedLayout = () => {
-  const { isLoggedIn, isReady } = useContext(AuthContext);
+  const { user } = useAuth();
 
-  if (!isReady) return null;
-  if (!isLoggedIn) return <Redirect href={"/login"} />;
+  console.log({ user: user ? "Home" : "Redirecting to login" });
+  if (!user) return <Redirect href={"/login"} />;
 
   return (
     <Stack>
@@ -15,7 +15,7 @@ const ProtectedLayout = () => {
         name="movie/[id]"
         options={{
           headerShown: false,
-          presentation: "transparentModal",
+          // presentation: "transparentModal",
           animation: "fade",
         }}
       />
