@@ -10,9 +10,9 @@ const LoginPage = () => {
   if (user) return <Redirect href="/" />;
 
   return (
-    <View className="size-full justify-center gap-4 items-center">
+    <View className="size-full justify-center gap-4 items-center bg-gray-300">
       <Text className="font-semibold text-xl">Login</Text>
-      <Button className="mt-4 font-semibold" onPressIn={signIn}>
+      <Button className="mt-4 font-semibold text-white" onPressIn={signIn}>
         Sign with Google
       </Button>
     </View>

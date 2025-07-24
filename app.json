@@ -18,7 +18,7 @@
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
-      "package":"com.flexmovies"
+      "package": "com.flexmovies"
     },
     "web": {
       "bundler": "metro",
