@@ -220,6 +220,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           if (sessionResponse.ok) {
             const userData = await sessionResponse.json();
             setUser(userData as AuthUser);
+          } else {
+            signOut();
           }
 
           // TODO: REFRESH logic
@@ -261,18 +263,21 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
                 setUser(decoded as AuthUser);
               } else {
-                setUser(null);
+                signOut;
                 tokenCache?.deleteToken(TOKEN_KEY_NAME);
               }
             } catch (e) {
               console.error("Error decoding stored token:", e);
+              signOut();
             }
           } else {
             console.log("User is not authenticated");
+            signOut();
           }
         }
       } catch (error) {
         console.error("Error restoring session:", error);
+        signOut();
       } finally {
         setIsLoading(false);
       }
