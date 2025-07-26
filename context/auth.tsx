@@ -18,6 +18,7 @@ import {
   makeRedirectUri,
   useAuthRequest,
 } from "expo-auth-session";
+import { usePathname } from "expo-router";
 import { Platform } from "react-native";
 
 // helps us to direct user to the Google
@@ -29,7 +30,6 @@ type AuthState = {
   error: AuthError | null;
   signIn: () => void;
   signOut: () => void;
-  fetchWithAuth: (url: string, options: RequestInit) => Promise<any>;
 };
 export const AuthContext = createContext<AuthState>({
   user: null,
@@ -37,7 +37,6 @@ export const AuthContext = createContext<AuthState>({
   error: null,
   signIn: () => {},
   signOut: () => {},
-  fetchWithAuth: (url, options) => Promise.resolve(new Response()),
 });
 
 const config: AuthRequestConfig = {
@@ -65,50 +64,18 @@ const discovery: DiscoveryDocument = {
   tokenEndpoint: `${BASE_URL}/api/auth/token`,
 };
 
+const isWeb = Platform.OS === "web";
+
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
+  const pathname = usePathname();
   const [user, setUser] = useState<AuthUser | null>(null);
   const [accessToken, setAccessToken] = useState<string | null>(null);
-  const [refreshToken, setRefreshToken] = useState<string | null>(null);
+  // const [refreshToken, setRefreshToken] = useState<string | null>(null);
 
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<AuthError | null>(null);
 
   const [request, response, promptAsync] = useAuthRequest(config, discovery);
-
-  const isWeb = Platform.OS === "web";
-
-  // const handleNativeTokens = async (tokens: {
-  //   accessToken: string;
-  //   refreshToken: string;
-  // }) => {
-  //   const { accessToken: newAccessToken, refreshToken: newRefreshToken } =
-  //     tokens;
-
-  //   console.log(
-  //     "Received initial access token:",
-  //     newAccessToken ? "exists" : "missing"
-  //   );
-  //   console.log(
-  //     "Received initial refresh token:",
-  //     newRefreshToken ? "exists" : "missing"
-  //   );
-
-  //   // Store tokens in state
-  //   if (newAccessToken) setAccessToken(newAccessToken);
-  //   if (newRefreshToken) setRefreshToken(newRefreshToken);
-
-  //   // Save tokens to secure storage for persistence
-  //   if (newAccessToken)
-  //     await tokenCache?.saveToken("accessToken", newAccessToken);
-  //   if (newRefreshToken)
-  //     await tokenCache?.saveToken("refreshToken", newRefreshToken);
-
-  //   // Decode the JWT access token to get user information
-  //   if (newAccessToken) {
-  //     const decoded = jose.decodeJwt(newAccessToken);
-  //     setUser(decoded as AuthUser);
-  //   }
-  // };
 
   async function handleResponse() {
     // This function is called when Google redirects back to our app
@@ -212,12 +179,108 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     } catch {}
   };
 
-  const signOut = () => {};
-  const fetchWithAuth = (url, options) => {};
+  const signOut = async () => {
+    if (isWeb) {
+      // For web: Call logout endpoint to clear the cookie
+      try {
+        await fetch(`${BASE_URL}/api/auth/logout`, {
+          method: "POST",
+          credentials: "include",
+        });
+      } catch (error) {
+        console.error("Error during web logout:", error);
+      }
+    } else {
+      // For native: Clear both tokens from cache
+      await tokenCache?.deleteToken("accessToken");
+      await tokenCache?.deleteToken("refreshToken");
+    }
+
+    // Clear state
+    setUser(null);
+    setAccessToken(null);
+    // setRefreshToken(null);
+  };
 
   useEffect(() => {
     handleResponse();
   }, [response]);
+
+  useEffect(() => {
+    const restoreSession = async () => {
+      setIsLoading(true);
+      try {
+        if (isWeb) {
+          // For web: Check if we have a session cookie by making a request to a session endpoint
+          const sessionResponse = await fetch(`${BASE_URL}/api/auth/session`, {
+            method: "GET",
+            credentials: "include", // Important: This includes cookies in the request
+          });
+
+          if (sessionResponse.ok) {
+            const userData = await sessionResponse.json();
+            setUser(userData as AuthUser);
+          }
+
+          // TODO: REFRESH logic
+          // else {
+          //   console.log("No active web session found");
+
+          //   // Try to refresh the token using the refresh cookie
+          //   try {
+          //     await refreshAccessToken();
+          //   } catch (e) {
+          //     console.log("Failed to refresh token on startup");
+          //   }
+          // }
+        } else {
+          // For native: Try to use the stored access token first
+          const storedAccessToken = await tokenCache?.getToken(TOKEN_KEY_NAME);
+          // const storedRefreshToken = await tokenCache?.getToken(REFRESH_COOKIE_NAME);
+
+          console.log(
+            "Restoring session - Access token:",
+            storedAccessToken ? "exists" : "missing"
+          );
+          console.log(
+            "Restoring session - Refresh token:"
+            // storedRefreshToken ? "exists" : "missing"
+          );
+
+          if (storedAccessToken) {
+            try {
+              // Check if the access token is still valid
+              const decoded = jose.decodeJwt(storedAccessToken);
+              const exp = (decoded as any).exp;
+              const now = Math.floor(Date.now() / 1000);
+
+              if (exp && exp > now) {
+                // Access token is still valid
+                console.log("Access token is still valid, using it");
+                setAccessToken(storedAccessToken);
+
+                setUser(decoded as AuthUser);
+              } else {
+                setUser(null);
+                tokenCache?.deleteToken(TOKEN_KEY_NAME);
+              }
+            } catch (e) {
+              console.error("Error decoding stored token:", e);
+            }
+          } else {
+            console.log("User is not authenticated");
+          }
+        }
+      } catch (error) {
+        console.error("Error restoring session:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    restoreSession();
+  }, [isWeb, pathname]);
+
   return (
     <AuthContext.Provider
       value={{
@@ -227,7 +290,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
         signIn,
         signOut,
-        fetchWithAuth,
       }}
     >
       {children}
